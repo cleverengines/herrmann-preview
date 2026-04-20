@@ -148,7 +148,28 @@ const sectionMeta = sectionColours[mod.section];
   </div>
 </CourseLayout>
 
-<script define:vars={{ modNum: mod.n }}>
+<script define:vars={{ modNum: mod.n, modTitle: mod.title, modSlug: mod.slug }}>
+  // PostHog: track module view + time on page
+  const _phPageEnter = Date.now();
+  if (typeof window.posthog !== 'undefined') {
+    window.posthog.capture('module_viewed', {
+      module_number: modNum,
+      module_title: modTitle,
+      module_slug: modSlug,
+    });
+  }
+  window.addEventListener('beforeunload', function() {
+    const timeSeconds = Math.round((Date.now() - _phPageEnter) / 1000);
+    if (typeof window.posthog !== 'undefined') {
+      window.posthog.capture('module_time_spent', {
+        module_number: modNum,
+        module_title: modTitle,
+        module_slug: modSlug,
+        time_seconds: timeSeconds,
+      });
+    }
+  });
+
   const STORAGE_KEY = "wba_preview_progress";
 
   function getProgress() {
