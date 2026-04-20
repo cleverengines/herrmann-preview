@@ -1,0 +1,242 @@
+---
+import "../styles/global.css";
+import { modules, sections, UNLOCKED_MODULES } from "../data/modules";
+
+interface Props {
+  currentModule: number;
+  title: string;
+}
+
+const { currentModule, title } = Astro.props;
+
+const sectionColourMap: Record<number, string> = {
+  1: "#284c6f",
+  2: "#64a5bf",
+  3: "#c14955",
+};
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{title} — Whole Brand Academy</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+      .sidebar-locked {
+        opacity: 0.38;
+        cursor: not-allowed;
+        pointer-events: none;
+      }
+      .preview-topbar {
+        background: linear-gradient(90deg, #0f1a28 0%, #1b263e 100%);
+        color: rgba(255,255,255,0.55);
+        font-size: 11px;
+        text-align: center;
+        padding: 6px 16px;
+        letter-spacing: 0.04em;
+      }
+      .preview-topbar strong { color: #64a5bf; }
+    </style>
+  </head>
+  <body class="bg-[#f7f6f4]">
+
+    <!-- Preview banner -->
+    <div class="preview-topbar">
+      Selected preview for <strong>Chris &amp; Michael Morgan</strong> · Modules 9 &amp; 10 available · Remaining modules unlock in the full program
+    </div>
+
+    <!-- Top Nav -->
+    <header class="bg-wba-deep text-white h-14 flex items-center gap-3 px-4 pr-4 fixed top-[29px] left-0 right-0 z-50 shadow-md">
+      <a href="/dashboard" class="flex items-center gap-2 shrink-0">
+        <img src="/logos/wba-logo-draft.svg" alt="Whole Brand Academy" class="h-8 brightness-0 invert" />
+      </a>
+      <a href="/dashboard" class="text-sm font-medium text-wba-teal hover:text-white transition-colors shrink-0">
+        <span class="hidden md:inline">← Back to Dashboard</span>
+        <span class="md:hidden">← Dashboard</span>
+      </a>
+      <div class="ml-auto flex items-center gap-3 shrink-0">
+        <span class="hidden sm:flex items-center gap-1.5 text-xs text-wba-teal/70">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          Preview
+        </span>
+      </div>
+      <!-- Mobile menu button -->
+      <button
+        id="sidebar-toggle"
+        class="ml-1 md:hidden min-w-[44px] min-h-[44px] flex items-center justify-center rounded text-white/80 hover:text-white hover:bg-wba-blue transition-colors shrink-0"
+        aria-label="Toggle course menu"
+      >
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="3" y1="6" x2="21" y2="6"/>
+          <line x1="3" y1="12" x2="21" y2="12"/>
+          <line x1="3" y1="18" x2="21" y2="18"/>
+        </svg>
+      </button>
+    </header>
+
+    <!-- Progress bar under nav -->
+    <div class="fixed top-[29px+56px] left-0 right-0 z-40 h-1 bg-wba-blue/30" style="top: calc(29px + 56px);">
+      <div id="progress-bar" class="h-full bg-wba-teal rounded-r-full transition-all duration-300" style="width: 0%"></div>
+    </div>
+
+    <!-- Layout grid: sidebar + content -->
+    <div class="flex min-h-screen" style="padding-top: calc(29px + 56px + 4px);">
+      <!-- Sidebar backdrop (mobile) -->
+      <div
+        id="sidebar-backdrop"
+        class="fixed inset-0 bg-black/50 z-30 hidden md:hidden"
+      ></div>
+
+      <!-- Sidebar -->
+      <aside
+        id="sidebar"
+        class="fixed left-0 bottom-0 w-72 bg-wba-deep text-white z-40 overflow-y-auto sidebar-scroll transform -translate-x-full md:translate-x-0 transition-transform duration-300"
+        style="top: calc(29px + 56px + 4px);"
+      >
+        <nav class="py-4">
+          {sections.map((section) => {
+            const sectionModules = modules.filter((m) => m.section === section.n);
+            return (
+              <div class="mb-2">
+                <p class="px-4 py-2 text-[10px] font-semibold uppercase tracking-[0.15em] text-wba-teal">
+                  {section.title}
+                </p>
+                <ul>
+                  {sectionModules.map((mod) => {
+                    const isUnlocked = UNLOCKED_MODULES.includes(mod.n);
+                    const isCurrent = mod.n === currentModule;
+                    if (isUnlocked) {
+                      return (
+                        <li>
+                          <a
+                            href={`/lessons/${mod.slug}`}
+                            data-module={mod.n}
+                            class={`sidebar-link flex items-center gap-3 px-4 py-2.5 text-sm transition-colors hover:bg-wba-blue/20 ${
+                              isCurrent
+                                ? "border-l-[3px] border-wba-teal bg-wba-blue/25 text-white font-semibold"
+                                : "text-white/80 hover:text-white border-l-[3px] border-transparent"
+                            }`}
+                          >
+                            <span class="flex items-center justify-center w-5 h-5 rounded-full bg-wba-teal/20 text-[10px] font-mono shrink-0 text-wba-teal font-bold module-num">
+                              {mod.n}
+                            </span>
+                            <span class="leading-tight text-[13px]">{mod.title}</span>
+                            <span class="ml-auto shrink-0 tick-icon hidden text-wba-teal">
+                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                                <polyline points="20 6 9 17 4 12"/>
+                              </svg>
+                            </span>
+                          </a>
+                        </li>
+                      );
+                    } else {
+                      return (
+                        <li>
+                          <span
+                            class="sidebar-locked flex items-center gap-3 px-4 py-2.5 text-sm border-l-[3px] border-transparent"
+                          >
+                            <span class="flex items-center justify-center w-5 h-5 rounded-full bg-white/5 text-[10px] font-mono shrink-0 text-white/25">
+                              {mod.n}
+                            </span>
+                            <span class="leading-tight text-[13px] text-white/30">{mod.title}</span>
+                            <span class="ml-auto shrink-0">
+                              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="2">
+                                <rect x="3" y="11" width="18" height="11" rx="2"/>
+                                <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                              </svg>
+                            </span>
+                          </span>
+                        </li>
+                      );
+                    }
+                  })}
+                </ul>
+              </div>
+            );
+          })}
+        </nav>
+      </aside>
+
+      <!-- Main content -->
+      <main class="flex-1 md:ml-72 min-h-[calc(100vh-89px)] bg-white">
+        <div class="max-w-4xl mx-auto px-4 py-8">
+          <slot />
+        </div>
+      </main>
+    </div>
+
+    <script define:vars={{ currentModule }}>
+      const STORAGE_KEY = "wba_preview_progress";
+
+      function getProgress() {
+        try {
+          return JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+        } catch {
+          return [];
+        }
+      }
+
+      function updateUI() {
+        const progress = getProgress();
+        const bar = document.getElementById("progress-bar");
+        // Only show progress for unlocked modules (max 2)
+        const pct = Math.round((progress.length / 2) * 100);
+        if (bar) bar.style.width = `${pct}%`;
+
+        // Update sidebar ticks for unlocked modules
+        const links = document.querySelectorAll(".sidebar-link");
+        links.forEach((link) => {
+          const modNum = parseInt(link.getAttribute("data-module") || "0");
+          const tick = link.querySelector(".tick-icon");
+          const numBadge = link.querySelector(".module-num");
+          if (progress.includes(modNum)) {
+            tick?.classList.remove("hidden");
+            if (numBadge) numBadge.classList.add("hidden");
+          } else {
+            tick?.classList.add("hidden");
+            if (numBadge) numBadge.classList.remove("hidden");
+          }
+        });
+      }
+
+      // Sidebar toggle for mobile
+      const toggle = document.getElementById("sidebar-toggle");
+      const sidebar = document.getElementById("sidebar");
+      const backdrop = document.getElementById("sidebar-backdrop");
+
+      function openSidebar() {
+        sidebar?.classList.remove("-translate-x-full");
+        backdrop?.classList.remove("hidden");
+        document.body.style.overflow = "hidden";
+      }
+
+      function closeSidebar() {
+        sidebar?.classList.add("-translate-x-full");
+        backdrop?.classList.add("hidden");
+        document.body.style.overflow = "";
+      }
+
+      toggle?.addEventListener("click", () => {
+        if (sidebar?.classList.contains("-translate-x-full")) {
+          openSidebar();
+        } else {
+          closeSidebar();
+        }
+      });
+
+      backdrop?.addEventListener("click", closeSidebar);
+      document.querySelectorAll(".sidebar-link").forEach((link) => {
+        link.addEventListener("click", () => closeSidebar());
+      });
+
+      window.addEventListener("storage", updateUI);
+      window.addEventListener("wba-progress-updated", updateUI);
+      updateUI();
+    </script>
+  </body>
+</html>

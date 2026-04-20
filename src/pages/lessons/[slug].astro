@@ -1,0 +1,200 @@
+---
+import CourseLayout from "../../layouts/CourseLayout.astro";
+import { modules, sections, sectionLabels, UNLOCKED_MODULES } from "../../data/modules";
+
+const { slug } = Astro.params;
+const mod = modules.find((m) => m.slug === slug);
+
+if (!mod) {
+  return Astro.redirect("/dashboard");
+}
+
+// Redirect locked modules back to dashboard
+if (!UNLOCKED_MODULES.includes(mod.n)) {
+  return Astro.redirect("/dashboard");
+}
+
+// Prev/next — only among unlocked modules
+const unlockedMods = modules.filter((m) => UNLOCKED_MODULES.includes(m.n));
+const currentIndex = unlockedMods.findIndex((m) => m.n === mod.n);
+const prevModule = currentIndex > 0 ? unlockedMods[currentIndex - 1] : null;
+const nextModule = currentIndex < unlockedMods.length - 1 ? unlockedMods[currentIndex + 1] : null;
+
+const sectionColours: Record<number, { bg: string; text: string; label: string }> = {
+  1: { bg: "#284c6f", text: "white", label: "Foundations" },
+  2: { bg: "#64a5bf", text: "white", label: "Brand Building Blocks" },
+  3: { bg: "#c14955", text: "white", label: "Workshop Tools" },
+};
+const sectionMeta = sectionColours[mod.section];
+---
+
+<CourseLayout currentModule={mod.n} title={mod.title}>
+  <div class="space-y-6">
+    <!-- Breadcrumb badges -->
+    <div class="flex flex-wrap items-center gap-2">
+      <span
+        class="text-[10px] font-semibold uppercase tracking-[0.15em] px-2.5 py-1 rounded-full text-white"
+        style={`background-color: ${sectionMeta.bg}`}
+      >
+        Section {mod.section}: {sectionMeta.label}
+      </span>
+      <span class="text-[10px] font-semibold uppercase tracking-[0.15em] px-2.5 py-1 rounded-full bg-[#f7f6f4] text-wba-blue border border-wba-blue/20">
+        Module {mod.n} of 20
+      </span>
+      <span class="text-[10px] font-semibold uppercase tracking-[0.15em] px-2.5 py-1 rounded-full bg-[#f7f6f4] text-gray-500 border border-gray-200 flex items-center gap-1">
+        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        {mod.duration}
+      </span>
+      <span class="text-[10px] font-semibold uppercase tracking-[0.15em] px-2.5 py-1 rounded-full bg-wba-teal/10 text-wba-teal border border-wba-teal/20">
+        ✓ Available in preview
+      </span>
+    </div>
+
+    <!-- Title -->
+    <h1 class="text-3xl md:text-4xl font-bold text-wba-deep leading-tight">{mod.title}</h1>
+
+    <!-- YouTube embed with branded container -->
+    <div class="rounded-xl overflow-hidden shadow-lg">
+      <div class="bg-wba-deep px-4 py-2.5 flex items-center gap-3">
+        <span class="text-[10px] font-semibold uppercase tracking-[0.15em] text-wba-teal">{sectionMeta.label}</span>
+        <span class="text-white/30">|</span>
+        <span class="text-sm text-white/80 font-medium break-words">{mod.title}</span>
+      </div>
+      <div class="relative w-full bg-black" style="padding-bottom: 56.25%;">
+        <iframe
+          id="lesson-video"
+          class="absolute inset-0 w-full h-full"
+          src={`https://www.youtube.com/embed/${mod.id}?rel=0&modestbranding=1`}
+          title={mod.title}
+          frameborder="0"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+          allowfullscreen
+        ></iframe>
+      </div>
+    </div>
+
+    <!-- Mark complete + prev/next row -->
+    <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+      <button
+        id="complete-btn"
+        data-module={mod.n}
+        class="flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg font-semibold text-sm transition-all duration-200 bg-wba-teal text-white hover:bg-wba-blue active:scale-95"
+      >
+        <svg id="complete-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+          <polyline points="20 6 9 17 4 12"/>
+        </svg>
+        <span id="complete-label">Mark as Complete</span>
+      </button>
+
+      <div class="flex gap-3 sm:ml-auto w-full sm:w-auto">
+        {prevModule ? (
+          <a
+            href={`/lessons/${prevModule.slug}`}
+            class="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg font-semibold text-sm border border-wba-teal text-wba-teal hover:bg-wba-teal hover:text-white transition-all duration-200"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <polyline points="15 18 9 12 15 6"/>
+            </svg>
+            Previous
+          </a>
+        ) : (
+          <span class="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg font-semibold text-sm bg-gray-50 text-gray-300 cursor-not-allowed border border-gray-200">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <polyline points="15 18 9 12 15 6"/>
+            </svg>
+            Previous
+          </span>
+        )}
+
+        {nextModule ? (
+          <a
+            href={`/lessons/${nextModule.slug}`}
+            class="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg font-semibold text-sm bg-wba-teal text-white hover:bg-wba-blue transition-all duration-200"
+          >
+            Next module
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <polyline points="9 18 15 12 9 6"/>
+            </svg>
+          </a>
+        ) : (
+          <a
+            href="/dashboard"
+            class="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg font-semibold text-sm bg-wba-deep text-white hover:bg-wba-blue transition-all duration-200"
+          >
+            Back to overview
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <polyline points="9 18 15 12 9 6"/>
+            </svg>
+          </a>
+        )}
+      </div>
+    </div>
+
+    <!-- Lesson info card -->
+    <div class="bg-white rounded-xl shadow-sm p-5 border-l-4" style={`border-color: ${sectionMeta.bg}`}>
+      <h2 class="font-semibold text-wba-deep mb-2 text-sm uppercase tracking-wider">About This Lesson</h2>
+      <p class="text-gray-600 text-sm leading-relaxed mb-2">{mod.desc}</p>
+      <p class="text-gray-400 text-xs leading-relaxed">
+        Part of <strong class="text-gray-500">Section {mod.section}: {sectionMeta.label}</strong> — module {mod.n} of 20.
+      </p>
+    </div>
+
+    <!-- Preview note -->
+    <div class="bg-[#f0f6fa] rounded-xl p-5 border border-wba-teal/20">
+      <p class="text-sm text-gray-500 leading-relaxed">
+        <strong class="text-wba-deep">This is a selected preview.</strong> The full Whole Brand Academy program includes all 20 modules with supporting downloadables and interactive quizzes throughout. This preview was prepared specifically for Chris and Michael Morgan.
+      </p>
+    </div>
+  </div>
+</CourseLayout>
+
+<script define:vars={{ modNum: mod.n }}>
+  const STORAGE_KEY = "wba_preview_progress";
+
+  function getProgress() {
+    try {
+      return JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+    } catch {
+      return [];
+    }
+  }
+
+  function saveProgress(progress) {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(progress));
+    window.dispatchEvent(new Event("wba-progress-updated"));
+  }
+
+  function updateCompleteButton() {
+    const progress = getProgress();
+    const isComplete = progress.includes(modNum);
+    const btn = document.getElementById("complete-btn");
+    const label = document.getElementById("complete-label");
+    const icon = document.getElementById("complete-icon");
+
+    if (!btn || !label || !icon) return;
+
+    if (isComplete) {
+      btn.classList.remove("bg-wba-teal", "hover:bg-wba-blue");
+      btn.classList.add("bg-wba-deep", "hover:bg-wba-blue");
+      label.textContent = "Completed ✓";
+    } else {
+      btn.classList.add("bg-wba-teal", "hover:bg-wba-blue");
+      btn.classList.remove("bg-wba-deep");
+      label.textContent = "Mark as Complete";
+    }
+  }
+
+  document.getElementById("complete-btn")?.addEventListener("click", () => {
+    const progress = getProgress();
+    const index = progress.indexOf(modNum);
+    if (index === -1) {
+      progress.push(modNum);
+    } else {
+      progress.splice(index, 1);
+    }
+    saveProgress(progress);
+    updateCompleteButton();
+  });
+
+  updateCompleteButton();
+</script>

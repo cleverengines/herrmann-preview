@@ -1,0 +1,219 @@
+---
+import "../styles/global.css";
+import { modules, sections, UNLOCKED_MODULES } from "../data/modules";
+
+const sectionColourMap: Record<number, string> = {
+  1: "#284c6f",
+  2: "#64a5bf",
+  3: "#c14955",
+};
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Course Dashboard — Whole Brand Academy Preview</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+      .module-locked {
+        opacity: 0.38;
+        cursor: not-allowed;
+        pointer-events: none;
+      }
+      .module-locked * {
+        pointer-events: none;
+      }
+      .lock-badge {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        font-size: 10px;
+        font-weight: 600;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: #9aa4b0;
+      }
+      .preview-banner {
+        background: linear-gradient(135deg, #1b263e 0%, #284c6f 100%);
+        color: white;
+        padding: 12px 24px;
+        text-align: center;
+        font-size: 13px;
+        letter-spacing: 0.02em;
+      }
+      .preview-banner span {
+        opacity: 0.7;
+      }
+      .preview-banner strong {
+        color: #64a5bf;
+      }
+    </style>
+  </head>
+  <body class="bg-[#f7f6f4] min-h-screen">
+
+    <!-- Preview banner -->
+    <div class="preview-banner">
+      <span>Selected Preview for Chris &amp; Michael Morgan · </span><strong>2 of 20 modules available</strong><span> · Remaining modules unlock in the full program</span>
+    </div>
+
+    <!-- Header -->
+    <header class="relative bg-wba-deep text-white py-10 px-4 overflow-hidden">
+      <div class="absolute inset-0 bg-gradient-to-br from-white/[0.04] to-transparent"></div>
+      <div class="relative max-w-5xl mx-auto flex flex-col md:flex-row items-center gap-4 md:gap-8">
+        <a href="/">
+          <img src="/logos/wba-logo-draft.svg" alt="Whole Brand Academy" class="h-14 brightness-0 invert" />
+        </a>
+        <div class="text-center md:text-left">
+          <p class="text-wba-canvas mt-1 text-base md:text-xl font-medium leading-snug">Build brands people feel before they can explain — and act on.</p>
+        </div>
+        <div class="md:ml-auto">
+          <span class="inline-flex items-center gap-2 bg-white/10 text-wba-teal text-xs font-semibold uppercase tracking-[0.12em] px-3 py-1.5 rounded-full border border-wba-teal/30">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            Preview Mode
+          </span>
+        </div>
+      </div>
+    </header>
+
+    <main class="max-w-5xl mx-auto px-4 py-10">
+
+      <!-- Selected modules callout -->
+      <section class="bg-white rounded-xl shadow-sm p-6 mb-10 border-l-4 border-wba-teal">
+        <div class="flex flex-col sm:flex-row sm:items-center gap-4">
+          <div class="flex-1">
+            <h2 class="font-bold text-wba-deep text-lg mb-1">Your Selected Modules</h2>
+            <p class="text-sm text-gray-500 leading-relaxed">
+              This preview has been curated to show two modules from <strong class="text-wba-deep">Section 2: Brand Building Blocks</strong>. 
+              All other modules are visible below as they appear in the full program — they'll be available when you join.
+            </p>
+          </div>
+          <div class="flex flex-col gap-2 shrink-0">
+            <a href="/lessons/module-9" class="flex items-center gap-2 bg-wba-teal text-white text-sm font-semibold px-4 py-2 rounded-lg hover:bg-wba-blue transition-colors">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="10 8 16 12 10 16"/></svg>
+              Module 9 — Brand on a Page
+            </a>
+            <a href="/lessons/module-10" class="flex items-center gap-2 bg-wba-teal text-white text-sm font-semibold px-4 py-2 rounded-lg hover:bg-wba-blue transition-colors">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="10 8 16 12 10 16"/></svg>
+              Module 10 — Brand Symmetry
+            </a>
+          </div>
+        </div>
+      </section>
+
+      <!-- Module grid — all 20 modules, locked/unlocked -->
+      <section>
+        <h2 class="text-xl font-bold text-wba-deep mb-2">Full Curriculum</h2>
+        <p class="text-sm text-gray-400 mb-8">20 modules across 3 sections. Two are open for this preview.</p>
+
+        {sections.map((section) => {
+          const sectionMods = modules.filter((m) => m.section === section.n);
+          const colour = sectionColourMap[section.n];
+          return (
+            <div id={`section-${section.n}`} class="mb-12 scroll-mt-6">
+              <div class="flex items-center gap-3 mb-5 px-2 py-1 -mx-2">
+                <span
+                  class="text-[10px] font-semibold uppercase tracking-[0.15em] px-2.5 py-1 rounded-full text-white"
+                  style={`background-color: ${colour}`}
+                >
+                  Section {section.n}
+                </span>
+                <h3 class="font-semibold text-wba-deep">{section.title}</h3>
+              </div>
+              <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {sectionMods.map((mod) => {
+                  if (!mod.locked) {
+                    return (
+                      <a
+                        href={`/lessons/${mod.slug}`}
+                        data-module={mod.n}
+                        class="group relative bg-white rounded-xl shadow-sm hover:shadow-lg border border-wba-teal/30 hover:border-wba-teal transition-all duration-200 hover:-translate-y-0.5 p-5 pt-7 flex flex-col overflow-hidden ring-1 ring-wba-teal/20"
+                      >
+                        {/* Coloured top strip */}
+                        <div class="absolute top-0 left-0 right-0 h-[3px]" style={`background-color: ${colour}`}></div>
+                        {/* Unlocked badge */}
+                        <span class="absolute top-3 right-3 text-[9px] font-bold uppercase tracking-wider text-wba-teal bg-wba-teal/10 px-2 py-0.5 rounded-full">
+                          Available
+                        </span>
+                        {/* Number badge */}
+                        <span
+                          class="absolute top-3 left-3 flex items-center justify-center w-6 h-6 rounded-full text-[10px] font-bold text-white"
+                          style={`background-color: ${colour}`}
+                        >
+                          {mod.n}
+                        </span>
+                        <div class="mt-3">
+                          <p class="text-sm font-semibold text-wba-deep leading-tight group-hover:text-wba-blue transition-colors">
+                            {mod.title}
+                          </p>
+                          <p class="text-sm text-gray-500 mt-1.5 line-clamp-2">{mod.desc}</p>
+                          <p class="text-xs text-gray-400 mt-2 flex items-center gap-1">
+                            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                            {mod.duration}
+                          </p>
+                        </div>
+                        <span class="mt-auto pt-3 text-wba-teal text-sm opacity-0 group-hover:opacity-100 transition-opacity duration-200 self-end font-semibold">
+                          Watch module →
+                        </span>
+                      </a>
+                    );
+                  } else {
+                    return (
+                      <div
+                        data-module={mod.n}
+                        class="module-locked relative bg-white rounded-xl shadow-sm border border-gray-100 p-5 pt-7 flex flex-col overflow-hidden"
+                      >
+                        {/* Greyed top strip */}
+                        <div class="absolute top-0 left-0 right-0 h-[3px] bg-gray-200"></div>
+                        {/* Lock icon */}
+                        <span class="absolute top-3 right-3">
+                          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#c0c8d0" stroke-width="2">
+                            <rect x="3" y="11" width="18" height="11" rx="2"/>
+                            <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                          </svg>
+                        </span>
+                        {/* Number badge — greyed */}
+                        <span class="absolute top-3 left-3 flex items-center justify-center w-6 h-6 rounded-full text-[10px] font-bold text-white bg-gray-300">
+                          {mod.n}
+                        </span>
+                        <div class="mt-3">
+                          <p class="text-sm font-medium text-gray-400 leading-tight">
+                            {mod.title}
+                          </p>
+                          <p class="text-sm text-gray-300 mt-1.5 line-clamp-2">{mod.desc}</p>
+                          <p class="text-xs text-gray-300 mt-2 flex items-center gap-1">
+                            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                            {mod.duration}
+                          </p>
+                        </div>
+                        <div class="mt-auto pt-3 self-end">
+                          <span class="lock-badge">
+                            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                            Full program
+                          </span>
+                        </div>
+                      </div>
+                    );
+                  }
+                })}
+              </div>
+            </div>
+          );
+        })}
+      </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-wba-deep text-white py-8 px-4 mt-8">
+      <div class="max-w-5xl mx-auto flex flex-wrap items-center gap-4">
+        <img src="/logos/wba-logo-draft.svg" alt="Whole Brand Academy" class="h-8 brightness-0 invert opacity-70 shrink-0" />
+        <p class="text-white/50 text-xs sm:text-sm">Internal preview · Not for distribution</p>
+        <a href="/" class="ml-auto text-white/40 hover:text-white/70 text-xs transition-colors">← Back to welcome</a>
+      </div>
+    </footer>
+  </body>
+</html>
